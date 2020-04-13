@@ -1,0 +1,108 @@
+---
+title: "Working with HDF5 files using SMAP data"
+output: html_notebook
+---
+```{r echo=FALSE}
+setwd("E:\\Univ of Utah Backup\\Drive 4\\G drive\\NASA\\SMAP\\SMAP_Mar_April")
+library("hdf5r")
+library(zoo)
+library(fields)
+library(maps)
+# File name
+myfile = "SMAP_L3_SM_P_20150406_R14010_001.h5"
+
+# Identify the file
+h5_file = H5File$new(myfile, mode = "r+")
+#h5_file = h5file(myfile)
+
+```
+
+Check what the file looks like
+```{r}
+# print the file 
+print (h5_file)
+
+# structure of the file
+str(h5_file) 
+```
+
+List file data 
+```{r}
+h5_file$ls(recursive = TRUE)
+lat_pm = h5_file[["Soil_Moisture_Retrieval_Data_PM/latitude_pm"]]
+lon_pm = h5_file[["Soil_Moisture_Retrieval_Data_PM/longitude_pm"]]
+soil_mois = h5_file[["Soil_Moisture_Retrieval_Data_PM/soil_moisture_pm"]]
+
+
+h5attributes(lat_pm)
+h5attributes(lon_pm)
+h5attributes(soil_mois)
+
+
+h5attr_names(lon_pm)
+h5attr_names(soil_mois)
+```
+
+Start extraction of Lat, Long and Data to plot PM data
+```{r}
+lat_pm # Check the number of dimensions
+lats = lat_pm[,] #From the dimension above, put the 2D data into this variable
+lats[lats==-9999.0] = NA
+lats = colMeans(lats,na.rm=T)
+lats[is.nan(lats)] = NA
+lats = na.approx(lats)
+lats = sort(lats)
+
+lon_pm
+lons = lon_pm[,]
+lons[lons==-9999.0] = NA
+lons = (rowMeans(lons,na.rm=T))
+lons[is.nan(lons)] = NA
+lons = na.approx(lons)
+
+soil_mois
+sms = soil_mois[,]
+sms[sms==-9999.0] = NA
+
+rotate <- function(x) t(apply(x, 2, rev))
+
+image.plot(lons, lats, (rotate(t(sms))))
+map(add=T, col = "lightgray", main = "Evening (PM)")
+
+``` 
+AM data plot
+```{r}
+
+
+lat_am = h5_file[["Soil_Moisture_Retrieval_Data_AM/latitude"]]
+lon_am = h5_file[["Soil_Moisture_Retrieval_Data_AM/longitude"]]
+soil_mois = h5_file[["Soil_Moisture_Retrieval_Data_AM/soil_moisture"]]
+
+lat_am # Check the number of dimensions
+lats = lat_am[,] #From the dimension above, put the 2D data into this variable
+lats[lats==-9999.0] = NA
+lats = colMeans(lats,na.rm=T)
+lats[is.nan(lats)] = NA
+lats = na.approx(lats)
+lats = sort(lats)
+
+lon_am
+lons = lon_am[,]
+lons[lons==-9999.0] = NA
+lons = (rowMeans(lons,na.rm=T))
+lons[is.nan(lons)] = NA
+lons = na.approx(lons)
+
+soil_mois
+sms = soil_mois[,]
+sms[sms==-9999.0] = NA
+
+rotate <- function(x) t(apply(x, 2, rev))
+
+image.plot(lons, lats, (rotate(t(sms))))
+map(add=T, col = "lightgray")
+
+```
+```{r}
+h5close(h5_file)
+```
