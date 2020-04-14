@@ -1,2 +1,2 @@
-# Rcodes-for-spatial
+# Rcodes-for-multidimensional-spatial-data
 Codes useful for spatial analysis
