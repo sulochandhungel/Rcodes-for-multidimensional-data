@@ -5,3 +5,5 @@ NASA has a Soil Moisture Active Passive (SMAP) satellite which provides soil moi
 https://rpubs.com/sulochandhungel/598399
 
 There is also a code which can automate download of such SMAP data.
+
+Download_SMAP_Data.R provides codes to download HDF5 data using wget through R.
